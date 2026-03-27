@@ -1,0 +1,83 @@
+###############################################################################
+# Testing Lifecycle with AI Agents — Docker Compose
+#
+# Services:
+#   todo-backend    FastAPI Todo API         → http://localhost:8000
+#   todo-frontend   Nginx HTML frontend      → http://localhost:3000
+#   jira-mock       Mock JIRA REST API       → http://localhost:8080
+#   n8n             Workflow orchestration   → http://localhost:5678
+#
+# Usage:
+#   docker-compose up -d              # start all services
+#   docker-compose up todo-backend    # start only the backend
+###############################################################################
+
+services:
+
+  # ── Example Application ────────────────────────────────────────────────────
+
+  todo-backend:
+    build:
+      context: ./apps/example_app/backend
+      dockerfile: Dockerfile
+    container_name: todo-backend
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  todo-frontend:
+    build:
+      context: ./apps/example_app/frontend
+      dockerfile: Dockerfile
+    container_name: todo-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/example_app/frontend/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      todo-backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Mock JIRA ──────────────────────────────────────────────────────────────
+
+  jira-mock:
+    build:
+      context: ./apps/jira_mock
+      dockerfile: Dockerfile
+    container_name: jira-mock
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  # ── n8n Workflow Orchestration ─────────────────────────────────────────────
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: n8n
+    ports:
+      - "${HOST_PORT_N8N:-5678}:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    environment:
+      TZ: Asia/Singapore
+      N8N_TIMEZONE: Asia/Singapore
+      WEBHOOK_URL: ${N8N_WEBHOOK_URL:-http://localhost:5678/}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+volumes:
+  n8n_data:

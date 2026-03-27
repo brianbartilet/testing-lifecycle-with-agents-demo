@@ -1,0 +1,292 @@
+name: Testing Lifecycle with AI Agents
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      run_agents:
+        description: "Run AI agent pipeline before tests (requires ANTHROPIC_API_KEY)"
+        required: false
+        default: "false"
+        type: choice
+        options: ["true", "false"]
+
+env:
+  PYTHON_VERSION: "3.12"
+  API_BASE_URL: "http://localhost:8000"
+  FRONTEND_URL: "http://localhost:3000"
+  JIRA_BASE_URL: "http://localhost:8080"
+
+jobs:
+
+  # ── Start Infrastructure Services ──────────────────────────────────────────
+  services-check:
+    name: "Build & Start Services"
+    runs-on: ubuntu-latest
+    outputs:
+      backend_ready: ${{ steps.health.outputs.backend_ready }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and start services
+        run: |
+          docker-compose build todo-backend jira-mock
+          docker-compose up -d todo-backend jira-mock
+
+      - name: Wait for services to be healthy
+        id: health
+        run: |
+          echo "Waiting for todo-backend..."
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8000/health; then
+              echo "backend_ready=true" >> $GITHUB_OUTPUT
+              break
+            fi
+            sleep 2
+          done
+
+          echo "Waiting for jira-mock..."
+          for i in $(seq 1 20); do
+            if curl -sf http://localhost:8080/health; then
+              break
+            fi
+            sleep 2
+          done
+
+      - name: Show service logs on failure
+        if: failure()
+        run: docker-compose logs
+
+  # ── Optional: Run AI Agent Pipeline ────────────────────────────────────────
+  agent-pipeline:
+    name: "AI Agent Pipeline (optional)"
+    runs-on: ubuntu-latest
+    needs: services-check
+    if: github.event.inputs.run_agents == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pyyaml requests
+
+      - name: Start services
+        run: docker-compose up -d todo-backend jira-mock
+
+      - name: Wait for backend
+        run: |
+          for i in $(seq 1 30); do curl -sf http://localhost:8000/health && break || sleep 2; done
+
+      - name: Run agent pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python -m apps.agents.orchestrator --skip-playwright
+        continue-on-error: true
+
+      - name: Upload generated artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-generated-tests
+          path: |
+            apps/testing/features/*.feature
+            apps/testing/features/steps/*_steps.py
+            apps/testing/api/test_todo_api_generated.py
+            apps/testing/generated/requirements.json
+          retention-days: 7
+
+  # ── API Tests (pytest) ─────────────────────────────────────────────────────
+  api-tests:
+    name: "API Tests (pytest + allure)"
+    runs-on: ubuntu-latest
+    needs: services-check
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install allure-pytest pytest-xdist
+
+      - name: Start backend service
+        run: |
+          docker-compose build todo-backend
+          docker-compose up -d todo-backend
+          for i in $(seq 1 30); do curl -sf http://localhost:8000/health && break || sleep 2; done
+
+      - name: Run API tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          ENV_APP_CONFIG_FILE: ${{ github.workspace }}/sample_config.yaml
+        run: |
+          pytest apps/testing/api/ \
+            -m "smoke or regression" \
+            --alluredir=allure-results/api \
+            --tb=short \
+            -v \
+            --junitxml=test-results/api-results.xml
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-test-results
+          path: |
+            allure-results/api/
+            test-results/api-results.xml
+          retention-days: 7
+
+  # ── BDD Tests (behave + allure) ────────────────────────────────────────────
+  bdd-tests:
+    name: "BDD Tests (behave + allure)"
+    runs-on: ubuntu-latest
+    needs: services-check
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install allure-behave
+          playwright install chromium --with-deps
+
+      - name: Start all services
+        run: |
+          docker-compose build todo-backend todo-frontend
+          docker-compose up -d todo-backend todo-frontend
+          for i in $(seq 1 30); do curl -sf http://localhost:8000/health && break || sleep 2; done
+          for i in $(seq 1 20); do curl -sf http://localhost:3000 && break || sleep 2; done
+
+      - name: Run BDD tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          FRONTEND_URL: http://localhost:3000
+          API_BASE_URL: http://localhost:8000
+          ENV_APP_CONFIG_FILE: ${{ github.workspace }}/sample_config.yaml
+        run: |
+          behave apps/testing/features/ \
+            -f allure_behave.formatter:AllureFormatter \
+            -o allure-results/bdd \
+            --no-capture \
+            --tags="@smoke or @regression"
+
+      - name: Upload BDD test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bdd-test-results
+          path: allure-results/bdd/
+          retention-days: 7
+
+  # ── E2E Tests (playwright pytest) ─────────────────────────────────────────
+  e2e-tests:
+    name: "E2E Tests (Playwright + allure)"
+    runs-on: ubuntu-latest
+    needs: services-check
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install allure-pytest
+          playwright install chromium --with-deps
+
+      - name: Start all services
+        run: |
+          docker-compose build todo-backend todo-frontend
+          docker-compose up -d todo-backend todo-frontend
+          for i in $(seq 1 30); do curl -sf http://localhost:8000/health && break || sleep 2; done
+          for i in $(seq 1 20); do curl -sf http://localhost:3000 && break || sleep 2; done
+
+      - name: Run E2E tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          FRONTEND_URL: http://localhost:3000
+          API_BASE_URL: http://localhost:8000
+          ENV_APP_CONFIG_FILE: ${{ github.workspace }}/sample_config.yaml
+        run: |
+          pytest apps/testing/e2e/ \
+            --alluredir=allure-results/e2e \
+            --tb=short \
+            -v \
+            --junitxml=test-results/e2e-results.xml
+
+      - name: Upload E2E results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-test-results
+          path: |
+            allure-results/e2e/
+            test-results/e2e-results.xml
+          retention-days: 7
+
+  # ── Generate & Publish Allure Report ──────────────────────────────────────
+  allure-report:
+    name: "Generate Allure Report"
+    runs-on: ubuntu-latest
+    needs: [api-tests, bdd-tests, e2e-tests]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "*-test-results"
+          merge-multiple: true
+          path: allure-results-combined
+
+      - name: Generate Allure report
+        uses: simple-elf/allure-report-action@master
+        with:
+          allure_results: allure-results-combined
+          allure_report: allure-report
+          allure_history: allure-history
+          keep_reports: 20
+
+      - name: Publish Allure report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-report
+
+      - name: Upload Allure report artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-report
+          path: allure-report/
+          retention-days: 30

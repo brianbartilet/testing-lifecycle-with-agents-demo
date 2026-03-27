@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Todo App</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; }
+    .container { background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.10); width: 100%; max-width: 600px; padding: 32px; }
+    h1 { font-size: 2rem; color: #1a1a2e; margin-bottom: 24px; text-align: center; }
+    .add-form { display: flex; gap: 10px; margin-bottom: 28px; flex-wrap: wrap; }
+    .add-form input[type="text"] { flex: 1; padding: 10px 14px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; outline: none; transition: border-color .2s; min-width: 0; }
+    .add-form input[type="text"]:focus { border-color: #4f6ef7; }
+    .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: background .2s, transform .1s; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: #4f6ef7; color: #fff; }
+    .btn-primary:hover { background: #3b58d6; }
+    .btn-danger { background: #ff4d6d; color: #fff; font-size: 0.85rem; padding: 6px 12px; }
+    .btn-danger:hover { background: #d63051; }
+    .btn-success { background: #22c55e; color: #fff; font-size: 0.85rem; padding: 6px 12px; }
+    .btn-success:hover { background: #16a34a; }
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+    .filter-btn { padding: 6px 14px; border: 2px solid #e0e0e0; background: #fff; border-radius: 20px; font-size: 0.9rem; cursor: pointer; transition: all .2s; }
+    .filter-btn.active, .filter-btn:hover { border-color: #4f6ef7; color: #4f6ef7; background: #eef1ff; }
+    .todo-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .todo-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 2px solid #f0f0f0; border-radius: 10px; background: #fafbff; transition: border-color .2s; }
+    .todo-item:hover { border-color: #c7d2ff; }
+    .todo-item.completed { opacity: 0.65; }
+    .todo-item.completed .todo-title { text-decoration: line-through; color: #999; }
+    .todo-checkbox { width: 20px; height: 20px; cursor: pointer; accent-color: #4f6ef7; flex-shrink: 0; }
+    .todo-content { flex: 1; min-width: 0; }
+    .todo-title { font-size: 1rem; color: #1a1a2e; font-weight: 500; word-break: break-word; }
+    .todo-desc { font-size: 0.82rem; color: #888; margin-top: 2px; word-break: break-word; }
+    .todo-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .empty-state { text-align: center; color: #aaa; padding: 40px 0; font-size: 1rem; }
+    #status-msg { text-align: center; font-size: 0.9rem; color: #4f6ef7; min-height: 22px; margin-bottom: 10px; }
+    #status-msg.error { color: #ff4d6d; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1 data-testid="app-title">Todo App</h1>
+
+  <form class="add-form" data-testid="add-todo-form" onsubmit="addTodo(event)">
+    <input
+      type="text"
+      id="todo-input"
+      data-testid="todo-input"
+      placeholder="Add a new todo..."
+      autocomplete="off"
+      required
+    />
+    <button type="submit" class="btn btn-primary" data-testid="add-todo-btn">Add</button>
+  </form>
+
+  <div class="filter-bar" data-testid="filter-bar">
+    <button class="filter-btn active" data-testid="filter-all" onclick="setFilter('all', this)">All</button>
+    <button class="filter-btn" data-testid="filter-active" onclick="setFilter('active', this)">Active</button>
+    <button class="filter-btn" data-testid="filter-completed" onclick="setFilter('completed', this)">Completed</button>
+  </div>
+
+  <div id="status-msg" data-testid="status-message"></div>
+
+  <ul class="todo-list" id="todo-list" data-testid="todo-list">
+    <li class="empty-state" data-testid="empty-state">No todos yet. Add one above!</li>
+  </ul>
+</div>
+
+<script>
+  const API_BASE = window.API_BASE || 'http://localhost:8000';
+  let _todos = [];
+  let _filter = 'all';
+
+  async function loadTodos() {
+    try {
+      const res = await fetch(`${API_BASE}/todos`);
+      if (!res.ok) throw new Error('Failed to load todos');
+      _todos = await res.json();
+      renderTodos();
+    } catch (e) {
+      showStatus('Error loading todos: ' + e.message, true);
+    }
+  }
+
+  async function addTodo(e) {
+    e.preventDefault();
+    const input = document.getElementById('todo-input');
+    const title = input.value.trim();
+    if (!title) return;
+    try {
+      const res = await fetch(`${API_BASE}/todos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title })
+      });
+      if (!res.ok) throw new Error('Failed to create todo');
+      const todo = await res.json();
+      _todos.unshift(todo);
+      input.value = '';
+      renderTodos();
+      showStatus('Todo added!');
+    } catch (e) {
+      showStatus('Error: ' + e.message, true);
+    }
+  }
+
+  async function toggleTodo(id) {
+    const todo = _todos.find(t => t.id === id);
+    if (!todo) return;
+    try {
+      const res = await fetch(`${API_BASE}/todos/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ completed: !todo.completed })
+      });
+      if (!res.ok) throw new Error('Failed to update todo');
+      const updated = await res.json();
+      _todos = _todos.map(t => t.id === id ? updated : t);
+      renderTodos();
+    } catch (e) {
+      showStatus('Error: ' + e.message, true);
+    }
+  }
+
+  async function deleteTodo(id) {
+    try {
+      const res = await fetch(`${API_BASE}/todos/${id}`, { method: 'DELETE' });
+      if (!res.ok && res.status !== 204) throw new Error('Failed to delete todo');
+      _todos = _todos.filter(t => t.id !== id);
+      renderTodos();
+      showStatus('Todo deleted.');
+    } catch (e) {
+      showStatus('Error: ' + e.message, true);
+    }
+  }
+
+  function setFilter(f, btn) {
+    _filter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTodos();
+  }
+
+  function renderTodos() {
+    const list = document.getElementById('todo-list');
+    let visible = _todos;
+    if (_filter === 'active') visible = _todos.filter(t => !t.completed);
+    if (_filter === 'completed') visible = _todos.filter(t => t.completed);
+
+    if (visible.length === 0) {
+      list.innerHTML = '<li class="empty-state" data-testid="empty-state">No todos here.</li>';
+      return;
+    }
+
+    list.innerHTML = visible.map(todo => `
+      <li class="todo-item${todo.completed ? ' completed' : ''}"
+          data-testid="todo-item"
+          data-todo-id="${todo.id}"
+          data-completed="${todo.completed}">
+        <input
+          type="checkbox"
+          class="todo-checkbox"
+          data-testid="todo-checkbox"
+          ${todo.completed ? 'checked' : ''}
+          onchange="toggleTodo('${todo.id}')"
+        />
+        <div class="todo-content">
+          <div class="todo-title" data-testid="todo-title">${escHtml(todo.title)}</div>
+          ${todo.description ? `<div class="todo-desc" data-testid="todo-description">${escHtml(todo.description)}</div>` : ''}
+        </div>
+        <div class="todo-actions">
+          <button
+            class="btn btn-danger"
+            data-testid="delete-todo-btn"
+            onclick="deleteTodo('${todo.id}')"
+            aria-label="Delete todo"
+          >Delete</button>
+        </div>
+      </li>
+    `).join('');
+  }
+
+  function showStatus(msg, isError = false) {
+    const el = document.getElementById('status-msg');
+    el.textContent = msg;
+    el.className = isError ? 'error' : '';
+    setTimeout(() => { el.textContent = ''; el.className = ''; }, 3000);
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  loadTodos();
+</script>
+</body>
+</html>

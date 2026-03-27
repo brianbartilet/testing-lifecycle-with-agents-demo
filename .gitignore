@@ -4,3 +4,12 @@ demo
 docs
 *.log*
 *.ini
+!pytest.ini
+!apps/testing/behave.ini
+
+# Generated test artifacts (produced by the agent pipeline)
+allure-results/
+allure-report/
+test-results/
+apps/testing/generated/*.json
+apps/testing/api/test_todo_api_generated.py

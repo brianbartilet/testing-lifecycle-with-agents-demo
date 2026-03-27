@@ -1,0 +1,302 @@
+{
+  "issues": [
+    {
+      "id": "10001",
+      "key": "TODO-1",
+      "self": "http://localhost:8080/rest/api/3/issue/TODO-1",
+      "fields": {
+        "summary": "As a user I can create a new todo item with a title",
+        "description": {
+          "type": "doc",
+          "version": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Users should be able to add a new todo by entering text in the input field and clicking the Add button or pressing Enter. The todo should appear immediately in the list."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [{"type": "text", "text": "Acceptance Criteria:", "marks": [{"type": "strong"}]}]
+            },
+            {
+              "type": "orderedList",
+              "content": [
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-1: The todo input field is visible on the page on load"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-2: User can type a todo title between 1 and 200 characters inclusive"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-3: Clicking the 'Add' button submits the form and creates the todo"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-4: Pressing the Enter key inside the input field also creates the todo"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-5: Submitting an empty input is rejected — no todo is created and an error is shown"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-6: The newly created todo appears at the top of the todo list immediately"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-7: The input field is cleared after a todo is successfully added"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-8: The todo is persisted via POST /todos and survives a page refresh"}]}]}
+              ]
+            }
+          ]
+        },
+        "status": {"name": "Ready for Testing", "id": "10003"},
+        "priority": {"name": "High", "id": "2"},
+        "issuetype": {"name": "Story", "id": "10001"},
+        "assignee": {"displayName": "Jane Dev", "emailAddress": "jane@example.com"},
+        "reporter": {"displayName": "Product Owner", "emailAddress": "po@example.com"},
+        "labels": ["todo", "frontend", "api"],
+        "components": [{"name": "Frontend"}, {"name": "Backend API"}],
+        "fixVersions": [{"name": "v1.0"}],
+        "created": "2024-01-15T09:00:00.000+0000",
+        "updated": "2024-01-20T14:30:00.000+0000",
+        "comment": {
+          "comments": [
+            {
+              "author": {"displayName": "QA Lead"},
+              "body": "AC-2 edge cases: test exactly 1 char (valid), exactly 200 chars (valid), 201 chars (invalid). AC-5: confirm the status message is visible.",
+              "created": "2024-01-16T10:00:00.000+0000"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "10002",
+      "key": "TODO-2",
+      "self": "http://localhost:8080/rest/api/3/issue/TODO-2",
+      "fields": {
+        "summary": "As a user I can mark a todo as complete",
+        "description": {
+          "type": "doc",
+          "version": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Users should be able to toggle the completion status of any todo item by clicking the checkbox next to it."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [{"type": "text", "text": "Acceptance Criteria:", "marks": [{"type": "strong"}]}]
+            },
+            {
+              "type": "orderedList",
+              "content": [
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-1: Every todo item displays a checkbox on the left side"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-2: Clicking the checkbox on an active todo marks it as completed"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-3: Completed todos display their title with strikethrough text"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-4: Completed todos are visually dimmed (reduced opacity) to distinguish them from active todos"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-5: Clicking the checkbox on a completed todo toggles it back to active"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-6: The completion state is persisted via PUT /todos/{id} with completed: true/false"}]}]}
+              ]
+            }
+          ]
+        },
+        "status": {"name": "Ready for Testing", "id": "10003"},
+        "priority": {"name": "High", "id": "2"},
+        "issuetype": {"name": "Story", "id": "10001"},
+        "assignee": {"displayName": "Jane Dev", "emailAddress": "jane@example.com"},
+        "reporter": {"displayName": "Product Owner", "emailAddress": "po@example.com"},
+        "labels": ["todo", "frontend"],
+        "components": [{"name": "Frontend"}],
+        "fixVersions": [{"name": "v1.0"}],
+        "created": "2024-01-15T09:05:00.000+0000",
+        "updated": "2024-01-20T14:35:00.000+0000",
+        "comment": {
+          "comments": [
+            {
+              "author": {"displayName": "QA Lead"},
+              "body": "AC-5: verify the round-trip — complete then uncomplete — API call is made both ways.",
+              "created": "2024-01-17T09:00:00.000+0000"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "10003",
+      "key": "TODO-3",
+      "self": "http://localhost:8080/rest/api/3/issue/TODO-3",
+      "fields": {
+        "summary": "As a user I can delete a todo item",
+        "description": {
+          "type": "doc",
+          "version": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Users should be able to permanently remove a todo item from the list by clicking the Delete button."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [{"type": "text", "text": "Acceptance Criteria:", "marks": [{"type": "strong"}]}]
+            },
+            {
+              "type": "orderedList",
+              "content": [
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-1: Every todo item displays a Delete button"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-2: Clicking Delete removes the todo from the visible list immediately (no page reload required)"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-3: The deletion is sent to the API via DELETE /todos/{id} and returns HTTP 204"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-4: After deletion, a GET /todos/{id} request for the same ID returns HTTP 404"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-5: Deleting a todo does not affect any other todo items in the list"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-6: Both active and completed todos can be deleted"}]}]}
+              ]
+            }
+          ]
+        },
+        "status": {"name": "Ready for Testing", "id": "10003"},
+        "priority": {"name": "Medium", "id": "3"},
+        "issuetype": {"name": "Story", "id": "10001"},
+        "assignee": {"displayName": "Jane Dev", "emailAddress": "jane@example.com"},
+        "reporter": {"displayName": "Product Owner", "emailAddress": "po@example.com"},
+        "labels": ["todo", "frontend", "api"],
+        "components": [{"name": "Frontend"}, {"name": "Backend API"}],
+        "fixVersions": [{"name": "v1.0"}],
+        "created": "2024-01-15T09:10:00.000+0000",
+        "updated": "2024-01-20T14:40:00.000+0000",
+        "comment": {
+          "comments": [
+            {
+              "author": {"displayName": "Developer"},
+              "body": "AC-3 confirmed: the backend returns 204 No Content on successful delete, and 404 if the ID is unknown.",
+              "created": "2024-01-18T11:30:00.000+0000"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "10004",
+      "key": "TODO-4",
+      "self": "http://localhost:8080/rest/api/3/issue/TODO-4",
+      "fields": {
+        "summary": "As a user I can filter todos by status (All, Active, Completed)",
+        "description": {
+          "type": "doc",
+          "version": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Users should be able to filter the displayed todo list using the three filter buttons at the top of the list: All, Active, and Completed."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [{"type": "text", "text": "Acceptance Criteria:", "marks": [{"type": "strong"}]}]
+            },
+            {
+              "type": "orderedList",
+              "content": [
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-1: Three filter buttons are visible: 'All', 'Active', and 'Completed'"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-2: 'All' is the default selected filter and shows every todo regardless of status"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-3: Selecting 'Active' shows only todos where completed = false"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-4: Selecting 'Completed' shows only todos where completed = true"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-5: The currently active filter button is visually highlighted (active CSS class applied)"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-6: Adding a new todo while a filter is active does not reset the filter selection"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-7: When a filtered view is empty (no matching todos), the empty-state message is displayed"}]}]}
+              ]
+            }
+          ]
+        },
+        "status": {"name": "Ready for Testing", "id": "10003"},
+        "priority": {"name": "Medium", "id": "3"},
+        "issuetype": {"name": "Story", "id": "10001"},
+        "assignee": {"displayName": "Jane Dev", "emailAddress": "jane@example.com"},
+        "reporter": {"displayName": "Product Owner", "emailAddress": "po@example.com"},
+        "labels": ["todo", "frontend"],
+        "components": [{"name": "Frontend"}],
+        "fixVersions": [{"name": "v1.0"}],
+        "created": "2024-01-15T09:15:00.000+0000",
+        "updated": "2024-01-20T14:45:00.000+0000",
+        "comment": {
+          "comments": [
+            {
+              "author": {"displayName": "QA Lead"},
+              "body": "AC-7: add a test for the empty-state specifically — add only completed todos then switch to Active filter.",
+              "created": "2024-01-19T08:45:00.000+0000"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "10005",
+      "key": "TODO-5",
+      "self": "http://localhost:8080/rest/api/3/issue/TODO-5",
+      "fields": {
+        "summary": "Todo REST API must return correct HTTP status codes for all operations",
+        "description": {
+          "type": "doc",
+          "version": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "The backend API must follow REST conventions and return the appropriate HTTP status codes for every operation and error scenario."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [{"type": "text", "text": "Acceptance Criteria:", "marks": [{"type": "strong"}]}]
+            },
+            {
+              "type": "orderedList",
+              "content": [
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-1: GET /todos returns 200 OK with a JSON array (empty array when no todos exist)"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-2: POST /todos with a valid body returns 201 Created with the new todo object"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-3: GET /todos/{id} returns 200 OK with the matching todo object"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-4: GET /todos/{id} returns 404 Not Found when the ID does not exist"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-5: PUT /todos/{id} with a valid body returns 200 OK with the updated todo object"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-6: PUT /todos/{id} returns 404 Not Found when the ID does not exist"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-7: DELETE /todos/{id} returns 204 No Content on successful deletion"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-8: DELETE /todos/{id} returns 404 Not Found when the ID does not exist"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-9: POST /todos with an empty title returns 422 Unprocessable Entity"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-10: POST /todos with a title longer than 200 characters returns 422 Unprocessable Entity"}]}]},
+                {"type": "listItem", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "AC-11: GET /health returns 200 OK with {status: 'ok'} at all times"}]}]}
+              ]
+            }
+          ]
+        },
+        "status": {"name": "Ready for Testing", "id": "10003"},
+        "priority": {"name": "High", "id": "2"},
+        "issuetype": {"name": "Story", "id": "10001"},
+        "assignee": {"displayName": "Jane Dev", "emailAddress": "jane@example.com"},
+        "reporter": {"displayName": "Product Owner", "emailAddress": "po@example.com"},
+        "labels": ["api", "backend"],
+        "components": [{"name": "Backend API"}],
+        "fixVersions": [{"name": "v1.0"}],
+        "created": "2024-01-15T09:20:00.000+0000",
+        "updated": "2024-01-20T14:50:00.000+0000",
+        "comment": {
+          "comments": [
+            {
+              "author": {"displayName": "Developer"},
+              "body": "AC-9 and AC-10: FastAPI returns 422 automatically via Pydantic validation. The response body will include a 'detail' array describing the validation errors.",
+              "created": "2024-01-19T14:00:00.000+0000"
+            },
+            {
+              "author": {"displayName": "QA Lead"},
+              "body": "AC-11: include the health check in the smoke test suite so CI fails fast if the service is down.",
+              "created": "2024-01-20T09:15:00.000+0000"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

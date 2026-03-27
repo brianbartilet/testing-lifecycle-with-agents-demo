@@ -1,1 +1,9 @@
 git+https://github.com/brianbartilet/harqis-core.git#egg=harqis-core
+
+# Test reporting
+allure-pytest==2.13.5
+allure-behave==2.13.5
+
+# API test utilities
+pyyaml==6.0.1
+requests==2.32.4
