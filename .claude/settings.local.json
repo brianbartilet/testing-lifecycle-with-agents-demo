@@ -3,7 +3,10 @@
     "allow": [
       "Bash(/c/Users/brian/GIT/testing-lifecycle-with-agents-demo/TESTING_LIFECYCLE.md:*)",
       "Bash(grep -n \"SYSTEM_PROMPT\\\\|prompt\\\\s*=\" /c/Users/brian/GIT/testing-lifecycle-with-agents-demo/apps/agents/*.py)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(gh run:*)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }

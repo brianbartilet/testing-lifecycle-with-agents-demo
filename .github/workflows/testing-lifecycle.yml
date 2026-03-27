@@ -171,7 +171,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install allure-behave
-          playwright install chromium --with-deps
+          python -m playwright install --with-deps chromium
 
       - name: Start all services
         run: |
@@ -219,7 +219,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install allure-pytest
-          playwright install chromium --with-deps
+          python -m playwright install --with-deps chromium
 
       - name: Start all services
         run: |
@@ -257,6 +257,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [api-tests, bdd-tests, e2e-tests]
     if: always()
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
