@@ -170,7 +170,7 @@ python get_started.py
 python -m apps.agents.orchestrator
 ```
 
-Runs all 5 stages, writes generated files to `apps/testing/`.
+Runs all 5 stages, writes generated files to `tests/`.
 
 ```bash
 # Skip Playwright stage if frontend is not running
@@ -184,19 +184,19 @@ python -m apps.agents.orchestrator --jql "project = TODO AND status = 'Ready for
 
 **API tests:**
 ```bash
-pytest apps/testing/api/ -m "smoke or regression" --alluredir=allure-results/api -v
+pytest tests/api/ -m "smoke or regression" --alluredir=allure-results/api -v
 ```
 
 **BDD tests:**
 ```bash
-behave apps/testing/features/ \
+behave tests/features/ \
   -f allure_behave.formatter:AllureFormatter \
   -o allure-results/bdd
 ```
 
 **E2E Playwright tests:**
 ```bash
-pytest apps/testing/e2e/ --alluredir=allure-results/e2e -v
+pytest tests/e2e/ --alluredir=allure-results/e2e -v
 ```
 
 ### 5. View Allure report locally
@@ -212,7 +212,7 @@ allure serve allure-results/api
 ### Stage 1 — RequirementsAgent
 
 **Input:** JIRA ticket JSON (`/rest/api/3/search`)
-**Output:** `apps/testing/generated/requirements.json`
+**Output:** `tests/generated/requirements.json`
 
 Claude analyzes each ticket's `summary`, `description` (Atlassian Document Format), and `comments` to produce structured JSON:
 - `business_requirement` — what must be built
@@ -224,28 +224,28 @@ Claude analyzes each ticket's `summary`, `description` (Atlassian Document Forma
 ### Stage 2 — BDDAgent
 
 **Input:** `requirements.json`
-**Output:** `apps/testing/features/*.feature`
+**Output:** `tests/features/*.feature`
 
 Groups requirements by component, generates one `.feature` file per group. Claude uses proper Gherkin: `Feature`, `Background`, `Scenario`, `Scenario Outline`, with `@smoke`, `@regression`, `@ui`, `@api` tags.
 
 ### Stage 3 — StepDefinitionAgent
 
 **Input:** `.feature` files
-**Output:** `apps/testing/features/steps/*_steps.py`
+**Output:** `tests/features/steps/*_steps.py`
 
 Claude generates behave step definitions using Playwright sync API (`context.page`) and the `TodoPage` page object.
 
 ### Stage 4 — PlaywrightAgent
 
 **Input:** Live HTML from `http://localhost:3000`
-**Output:** `apps/testing/e2e/pages/todo_page.py`
+**Output:** `tests/e2e/pages/todo_page.py`
 
 Fetches running frontend HTML, identifies `data-testid` attributes, generates a complete Page Object Model class.
 
 ### Stage 5 — PytestAgent
 
 **Input:** `apps/example_app/openapi.yaml`
-**Output:** `apps/testing/api/test_todo_api_generated.py`
+**Output:** `tests/api/test_todo_api_generated.py`
 
 Reads every endpoint from the OpenAPI spec, generates pytest tests covering happy paths, 404s, 422 validation errors, with `@pytest.mark.parametrize` and `@allure.feature()` annotations.
 
@@ -337,8 +337,8 @@ Recommended n8n workflow sequence:
 1. Cron / JIRA webhook trigger
 2. HTTP node → run orchestrator
 3. Wait node
-4. HTTP node → `pytest apps/testing/api/`
-5. HTTP node → `behave apps/testing/features/`
+4. HTTP node → `pytest tests/api/`
+5. HTTP node → `behave tests/features/`
 6. HTTP node → `allure generate`
 7. Notification node
 

@@ -43,7 +43,7 @@ Content:
 ---
 
 Page objects available:
-- apps.testing.e2e.pages.todo_page.TodoPage (for UI steps)
+- tests.e2e.pages.todo_page.TodoPage (for UI steps)
   Methods: navigate(), add_todo(title), get_todo_titles(), delete_todo(title),
            toggle_todo(title), filter_todos(filter_name), get_visible_count()
 
@@ -60,8 +60,8 @@ Generate all step definitions needed to fully implement the scenarios in this fe
 
     def run(
         self,
-        features_dir: str = "apps/testing/features",
-        steps_dir: str = "apps/testing/features/steps",
+        features_dir: str = "tests/features",
+        steps_dir: str = "tests/features/steps",
     ) -> dict[str, str]:
         """
         Process all .feature files in features_dir and generate corresponding step files.

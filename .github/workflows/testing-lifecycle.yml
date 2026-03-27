@@ -100,10 +100,10 @@ jobs:
         with:
           name: agent-generated-tests
           path: |
-            apps/testing/features/*.feature
-            apps/testing/features/steps/*_steps.py
-            apps/testing/api/test_todo_api_generated.py
-            apps/testing/generated/requirements.json
+            tests/features/*.feature
+            tests/features/steps/*_steps.py
+            tests/api/test_todo_api_generated.py
+            tests/generated/requirements.json
           retention-days: 7
 
   # ── API Tests (pytest) ─────────────────────────────────────────────────────
@@ -136,7 +136,7 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
           ENV_APP_CONFIG_FILE: ${{ github.workspace }}/sample_config.yaml
         run: |
-          pytest apps/testing/api/ \
+          pytest tests/api/ \
             -m "smoke or regression" \
             --alluredir=allure-results/api \
             --tb=short \
@@ -196,7 +196,7 @@ jobs:
           API_BASE_URL: http://localhost:8000
           ENV_APP_CONFIG_FILE: ${{ github.workspace }}/sample_config.yaml
         run: |
-          behave apps/testing/features/ \
+          behave tests/features/ \
             -f allure_behave.formatter:AllureFormatter \
             -o allure-results/bdd \
             --no-capture \
@@ -253,7 +253,7 @@ jobs:
           API_BASE_URL: http://localhost:8000
           ENV_APP_CONFIG_FILE: ${{ github.workspace }}/sample_config.yaml
         run: |
-          pytest apps/testing/e2e/ \
+          pytest tests/e2e/ \
             --alluredir=allure-results/e2e \
             --tb=short \
             -v \

@@ -39,12 +39,12 @@ from core.utilities.logging.custom_logger import logger as log
 
 
 # ── Output paths ──────────────────────────────────────────────────────────────
-REQUIREMENTS_OUTPUT = "apps/testing/generated/requirements.json"
-FEATURES_DIR        = "apps/testing/features"
-STEPS_DIR           = "apps/testing/features/steps"
-PAGE_OBJECTS_DIR    = "apps/testing/e2e/pages"
-API_TESTS_OUTPUT    = "apps/testing/api/test_todo_api_generated.py"
-OPENAPI_SPEC        = "apps/example_app/openapi.yaml"
+REQUIREMENTS_OUTPUT = "tests/generated/requirements.json"
+FEATURES_DIR        = "tests/features"
+STEPS_DIR           = "tests/features/steps"
+PAGE_OBJECTS_DIR    = "tests/e2e/pages"
+API_TESTS_OUTPUT    = "tests/api/test_todo_api_generated.py"
+OPENAPI_SPEC        = "apps/test_app/openapi.yaml"
 
 
 def run_pipeline(

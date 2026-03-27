@@ -90,7 +90,7 @@ Feature: Todo Creation
 
 - The user prompt injects the full requirements JSON and the component name. The model knows the component grouping when writing the `Feature:` title.
 - If requirements reference both UI and API behaviour, split the scenarios using `@ui` and `@api` tags within the same file — do not generate two files for the same component.
-- The step wording must be compatible with the step definitions in `apps/testing/features/steps/`. Prefer patterns already used there (`I open the Todo application`, `I type "…" in the todo input`, etc.) so generated steps can reuse existing implementations.
+- The step wording must be compatible with the step definitions in `tests/features/steps/`. Prefer patterns already used there (`I open the Todo application`, `I type "…" in the todo input`, etc.) so generated steps can reuse existing implementations.
 
 ---
 

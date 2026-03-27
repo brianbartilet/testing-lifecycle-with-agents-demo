@@ -62,7 +62,7 @@ Use Scenario Outline where multiple similar scenarios differ only by data."""
     def run(
         self,
         requirements: list[dict],
-        output_dir: str = "apps/testing/features",
+        output_dir: str = "tests/features",
     ) -> dict[str, str]:
         """
         Generate feature files from requirements and write them to disk.

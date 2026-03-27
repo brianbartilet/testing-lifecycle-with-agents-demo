@@ -52,7 +52,7 @@ OpenAPI Spec:
 ---
 
 Generate tests for ALL paths and methods. Include edge cases, validation errors, and happy paths.
-The test file should be ready to run with: pytest apps/testing/api/test_todo_api.py --alluredir=allure-results"""
+The test file should be ready to run with: pytest tests/api/test_todo_api.py --alluredir=allure-results"""
 
         log.info("[PytestAgent] Generating pytest tests from OpenAPI spec")
         code = self._ask(prompt, system=SYSTEM_PROMPT)
@@ -61,7 +61,7 @@ The test file should be ready to run with: pytest apps/testing/api/test_todo_api
     def run(
         self,
         spec_path: str = "apps/example_app/openapi.yaml",
-        output_path: str = "apps/testing/api/test_todo_api_generated.py",
+        output_path: str = "tests/api/test_todo_api_generated.py",
     ) -> str:
         """
         Load the OpenAPI spec, generate tests, and write to disk.

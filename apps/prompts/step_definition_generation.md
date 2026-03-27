@@ -9,7 +9,7 @@
 
 ## Purpose
 
-Translates every Gherkin step in a feature file into a concrete Python implementation using the `behave` framework and Playwright's sync API. The output is a drop-in step definitions file that behave discovers automatically when placed in `apps/testing/features/steps/`.
+Translates every Gherkin step in a feature file into a concrete Python implementation using the `behave` framework and Playwright's sync API. The output is a drop-in step definitions file that behave discovers automatically when placed in `tests/features/steps/`.
 
 ---
 
@@ -34,7 +34,7 @@ The `environment.py` hooks populate the following on `context` before each scena
 
 ## Page Object Reference
 
-`TodoPage` is imported from `apps.testing.e2e.pages.todo_page`.
+`TodoPage` is imported from `tests.e2e.pages.todo_page`.
 
 | Method / Property | Description |
 |---|---|
@@ -75,7 +75,7 @@ The `environment.py` hooks populate the following on `context` before each scena
 ```python
 from behave import given, when, then
 from playwright.sync_api import expect
-from apps.testing.e2e.pages.todo_page import TodoPage
+from tests.e2e.pages.todo_page import TodoPage
 
 @given("I open the Todo application")
 def step_open_app(context):
@@ -104,7 +104,7 @@ Context available on the behave `context` object:
 - context.api_base_url: str — backend API URL (e.g. http://localhost:8000)
 - context.todo_page: TodoPage — page object set by the "I open the Todo application" step
 
-Page Object (apps.testing.e2e.pages.todo_page.TodoPage) methods available:
+Page Object (tests.e2e.pages.todo_page.TodoPage) methods available:
 - navigate(base_url), add_todo(title), fill_input(title), click_add()
 - delete_todo(title), toggle_todo(title), filter_todos(name)
 - get_todo_titles() -> List[str], get_visible_count() -> int, is_todo_completed(title) -> bool

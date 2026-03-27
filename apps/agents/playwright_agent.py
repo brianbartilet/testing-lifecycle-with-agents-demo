@@ -68,7 +68,7 @@ Generate a complete, production-ready Page Object class that covers all interact
     def run(
         self,
         frontend_url: str = "http://localhost:3000",
-        output_path: str = "apps/testing/e2e/pages/todo_page.py",
+        output_path: str = "tests/e2e/pages/todo_page.py",
         class_name: str = "TodoPage",
     ) -> str:
         """

@@ -8,7 +8,7 @@ import allure
 import pytest
 from playwright.sync_api import Page, expect
 
-from apps.testing.e2e.pages.todo_page import TodoPage
+from tests.e2e.pages.todo_page import TodoPage
 
 
 @allure.feature("Todo UI")
