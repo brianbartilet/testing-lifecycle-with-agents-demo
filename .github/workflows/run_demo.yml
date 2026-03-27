@@ -19,7 +19,7 @@ jobs:
       run: docker build  --target tests --no-cache -t harqis-pytest .
 
     - name: Start Services
-      run: docker-compose up &
+      run: docker compose up &
 
     - name: Run Tests
       run: docker run harqis-pytest
@@ -36,7 +36,7 @@ jobs:
         run: docker build  --target behave --no-cache -t harqis-behave .
 
       - name: Start Services
-        run: docker-compose up &
+        run: docker compose up &
 
       - name: Run Tests
         run: docker run harqis-behave
