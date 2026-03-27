@@ -35,6 +35,30 @@
      ```sh
      pytest
      ```
+## Testing Lifecycle with AI Agents
+
+This project includes an end-to-end AI-driven testing lifecycle. See [TESTING_LIFECYCLE.md](TESTING_LIFECYCLE.md) for the full walkthrough.
+
+### Quick start (with Docker)
+
+```bash
+docker compose up -d todo-backend todo-frontend jira-mock
+PYTHONPATH=. python -m apps.agents.orchestrator --skip-playwright
+```
+
+### Claude Code skills
+
+If you use [Claude Code](https://claude.ai/code), the following slash commands are available:
+
+| Skill | Purpose |
+|---|---|
+| `/run-pipeline` | Run the full 5-stage agent pipeline |
+| `/run-api-tests` | Run pytest API tests |
+| `/run-bdd-tests` | Run behave BDD scenarios |
+| `/run-e2e-tests` | Run Playwright E2E tests |
+| `/services-up` | Start Docker services |
+| `/services-down` | Stop Docker services |
+
 ## Full Documentation
 - After successfully running `get_started.py` please see the generated [README.md](demo/README.md) for detailed documentation of features and operations.
 

@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/c/Users/brian/GIT/testing-lifecycle-with-agents-demo/TESTING_LIFECYCLE.md:*)",
+      "Bash(grep -n \"SYSTEM_PROMPT\\\\|prompt\\\\s*=\" /c/Users/brian/GIT/testing-lifecycle-with-agents-demo/apps/agents/*.py)",
+      "Bash(python:*)",
+      "Bash(gh run:*)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(where gh:*)",
+      "Read(//usr/local/bin/**)",
+      "Read(//c/Program Files/**)",
+      "Bash(curl:*)",
+      "Bash(git rm:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(grep -r \"apps/testing\\\\|apps\\\\.testing\" /c/Users/brian/GIT/testing-lifecycle-with-agents-demo --include=*.py --include=*.yml --include=*.yaml --include=*.ini --include=*.md --include=*.json -l)",
+      "Bash(git mv:*)",
+      "Bash(git -C /c/Users/brian/GIT/testing-lifecycle-with-agents-demo status --short)"
+    ]
+  }
+}
