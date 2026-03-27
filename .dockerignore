@@ -1,0 +1,8 @@
+.github
+*.egg-info
+.pytest_cache
+.idea
+venv
+dist
+*.log*
+pytest.ini

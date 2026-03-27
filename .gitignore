@@ -1,0 +1,6 @@
+.idea
+*config.yaml
+demo
+docs
+*.log*
+*.ini
