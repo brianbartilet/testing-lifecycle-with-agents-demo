@@ -49,7 +49,7 @@ services:
 
   jira-mock:
     build:
-      context: ./apps/jira_mock
+      context: ./apps/jira
       dockerfile: Dockerfile
     container_name: jira-mock
     ports:
