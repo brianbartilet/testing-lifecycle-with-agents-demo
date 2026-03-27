@@ -18,7 +18,7 @@ services:
 
   todo-backend:
     build:
-      context: ./apps/example_app/backend
+      context: ./apps/test_app/backend
       dockerfile: Dockerfile
     container_name: todo-backend
     ports:
@@ -33,7 +33,7 @@ services:
 
   todo-frontend:
     build:
-      context: ./apps/example_app/frontend
+      context: ./apps/test_app/frontend
       dockerfile: Dockerfile
     container_name: todo-frontend
     ports:
