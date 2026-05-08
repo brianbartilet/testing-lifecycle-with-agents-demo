@@ -7,7 +7,7 @@ allowed-tools: Bash
 
 Run BDD tests with optional tag filter. Pass a behave tag as `$ARGUMENTS` (e.g. `smoke`, `regression`) or leave blank to run all tagged scenarios.
 
-!`PYTHONPATH=. API_BASE_URL=http://localhost:8000 FRONTEND_URL=http://localhost:3000 behave tests/features/ --no-capture ${ARGUMENTS:+--tags="@$ARGUMENTS"} 2>&1`
+!`if [ -f apps.env ]; then set -a; . ./apps.env; set +a; fi; PYTHONPATH=. API_BASE_URL=${API_BASE_URL:-http://localhost:8000} FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000} behave tests/features/ --no-capture ${ARGUMENTS:+--tags="@$ARGUMENTS"} 2>&1`
 
 Summarize:
 - Scenarios passed / failed / skipped

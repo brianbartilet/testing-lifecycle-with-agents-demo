@@ -7,7 +7,7 @@ allowed-tools: Bash
 
 Run API tests with optional marker filter. Pass a pytest marker as `$ARGUMENTS` (e.g. `smoke`, `regression`) or leave blank to run all.
 
-!`PYTHONPATH=. python -m pytest tests/api/ ${ARGUMENTS:+-m "$ARGUMENTS"} --tb=short -v 2>&1`
+!`if [ -f apps.env ]; then set -a; . ./apps.env; set +a; fi; PYTHONPATH=. python -m pytest tests/api/ ${ARGUMENTS:+-m "$ARGUMENTS"} --tb=short -v 2>&1`
 
 Summarize:
 - Total passed / failed / skipped

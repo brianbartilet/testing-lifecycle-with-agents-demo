@@ -82,12 +82,20 @@ class TodoPage:
         )
         item.get_by_test_id("delete-todo-btn").click()
 
-    def toggle_todo(self, title: str) -> None:
-        """Toggle the completion checkbox for the todo with the given title."""
+    def toggle_todo(self, title: str, timeout_ms: int = 5000) -> None:
+        """Toggle the completion checkbox and wait for the PUT to commit.
+
+        The frontend's onchange handler does an async PUT and only then
+        re-renders the <li> with the new data-completed value. Wait for
+        that re-render so callers don't race the network round-trip.
+        """
         item = self.page.locator('[data-testid="todo-item"]').filter(
             has=self.page.get_by_test_id("todo-title").filter(has_text=title)
         )
+        was_completed = (item.get_attribute("data-completed") or "false") == "true"
         item.get_by_test_id("todo-checkbox").click()
+        expected = "false" if was_completed else "true"
+        expect(item).to_have_attribute("data-completed", expected, timeout=timeout_ms)
 
     def filter_todos(self, filter_name: str) -> None:
         """Click a filter button by name: 'All', 'Active', or 'Completed'."""
@@ -111,10 +119,20 @@ class TodoPage:
         """Return the number of visible todo items."""
         return self.todo_items.count()
 
-    def is_todo_completed(self, title: str) -> bool:
-        """Return True if the todo with the given title is marked as completed."""
-        item = self.page.locator('[data-testid="todo-item"]').filter(
+    def is_todo_completed(self, title: str, timeout_ms: int = 5000) -> bool:
+        """Return True if the todo with the given title is marked as completed.
+
+        Toggling fires an async PUT and re-renders the <li>; wait for the
+        post-render `data-completed="true"` attribute rather than reading
+        class synchronously, otherwise we race the network round-trip.
+        """
+        completed_item = self.page.locator(
+            '[data-testid="todo-item"][data-completed="true"]'
+        ).filter(
             has=self.page.get_by_test_id("todo-title").filter(has_text=title)
         )
-        classes = item.get_attribute("class") or ""
-        return "completed" in classes
+        try:
+            completed_item.wait_for(state="attached", timeout=timeout_ms)
+            return True
+        except Exception:
+            return False

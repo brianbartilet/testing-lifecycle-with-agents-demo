@@ -7,7 +7,7 @@ allowed-tools: Bash
 
 Run E2E tests with optional marker filter. Pass a pytest marker as `$ARGUMENTS` (e.g. `smoke`, `regression`) or leave blank to run all.
 
-!`PYTHONPATH=. API_BASE_URL=http://localhost:8000 FRONTEND_URL=http://localhost:3000 python -m pytest tests/e2e/ ${ARGUMENTS:+-m "$ARGUMENTS"} --tb=short -v 2>&1`
+!`if [ -f apps.env ]; then set -a; . ./apps.env; set +a; fi; PYTHONPATH=. API_BASE_URL=${API_BASE_URL:-http://localhost:8000} FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000} python -m pytest tests/e2e/ ${ARGUMENTS:+-m "$ARGUMENTS"} --tb=short -v 2>&1`
 
 Summarize:
 - Total passed / failed / skipped

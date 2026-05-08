@@ -7,7 +7,7 @@ allowed-tools: Bash, Read
 
 Run the full agent pipeline. Pass an optional JQL string as `$ARGUMENTS` (default: `status = 'Ready for Testing'`).
 
-!`PYTHONPATH=. python -m agents.orchestrator --skip-playwright 2>&1`
+!`if [ -f apps.env ]; then set -a; . ./apps.env; set +a; fi; PYTHONPATH=. python -m agents.orchestrator --skip-playwright 2>&1`
 
 After the run, summarize:
 - Status of each stage (success / error / skipped)

@@ -10,7 +10,16 @@ Built on top of [`harqis-core`](https://github.com/brianbartilet/harqis-core).
 
 ### Pipeline architecture
 
+The pipeline is driven by the **`/run-pipeline`** Claude Code skill — call it from any Claude Code session and the five agents run in sequence to (re)generate the entire test suite. Internally it sources `apps.env`, then invokes `agents.orchestrator`, which calls each stage and writes outputs into `tests/`.
+
 ```
+┌──────────────────────────────────────────────────────────────────┐
+│  /run-pipeline    (Claude Code skill — primary entrypoint)       │
+│  .claude/skills/run-pipeline/SKILL.md                            │
+│  ↳ source apps.env  →  python -m agents.orchestrator             │
+└────────────────────────────────┬─────────────────────────────────┘
+                                 │ orchestrator.run_pipeline()
+                                 ▼
 ┌──────────────────────────────────────────────────────────────────┐
 │  JIRA Mock (Flask, port 8080)  ·  realistic ticket JSON          │
 └────────────────────────────────┬─────────────────────────────────┘
@@ -20,37 +29,57 @@ Built on top of [`harqis-core`](https://github.com/brianbartilet/harqis-core).
 │  Stage 1 · RequirementsAgent                                     │
 │  JIRA tickets → structured requirements JSON                     │
 └────────────────────────────────┬─────────────────────────────────┘
-                                 │ requirements.json
+                                 │ tests/generated/requirements.json
                                  ▼
 ┌──────────────────────────────────────────────────────────────────┐
 │  Stage 2 · BDDAgent                                              │
 │  requirements → Gherkin .feature files (grouped by component)    │
 └────────────────────────────────┬─────────────────────────────────┘
-                                 │ *.feature
+                                 │ tests/features/*.feature
                                  ▼
 ┌──────────────────────────────────────────────────────────────────┐
 │  Stage 3 · StepDefinitionAgent                                   │
 │  .feature → Python `behave` step definitions (Playwright)        │
 └────────────────────────────────┬─────────────────────────────────┘
-                                 │ *_steps.py
+                                 │ tests/features/steps/*_steps.py
                                  ▼
 ┌──────────────────────────────────────────────────────────────────┐
 │  Stage 4 · PlaywrightAgent                                       │
 │  live frontend HTML → Page Object Model                          │
 └────────────────────────────────┬─────────────────────────────────┘
-                                 │ todo_page.py
+                                 │ tests/e2e/pages/todo_page.py
                                  ▼
 ┌──────────────────────────────────────────────────────────────────┐
 │  Stage 5 · PytestAgent                                           │
 │  OpenAPI spec → pytest API test suite                            │
 └────────────────────────────────┬─────────────────────────────────┘
-                                 │ test_todo_api_generated.py
+                                 │ tests/api/test_todo_api_generated.py
                                  ▼
-        Test Execution: behave (BDD) · pytest (API + E2E)
+   Test Execution (separate skills, not part of /run-pipeline):
+     /run-bdd-tests · /run-api-tests · /run-e2e-tests
                                  │ allure-results/
                                  ▼
                   Allure Report → GitHub Pages
 ```
+
+### How `/run-pipeline` maps to the code
+
+| Layer | Lives in | What it does |
+|---|---|---|
+| Skill | `.claude/skills/run-pipeline/SKILL.md` | One-line bash that sources `apps.env` (so `ANTHROPIC_API_KEY` is in scope) and shells out to the orchestrator |
+| Orchestrator | `agents/orchestrator.py · run_pipeline()` | Calls `RequirementsAgent → BDDAgent → StepDefinitionAgent → PlaywrightAgent → PytestAgent` in order, captures status of each stage, prints a JSON summary |
+| Each agent | `agents/<name>_agent.py` (extends `BaseAgent`) | Loads its system prompt from `integrations/prompts/`, calls Anthropic, writes the artifact to disk |
+| Generated artifacts | `tests/features/`, `tests/features/steps/`, `tests/e2e/pages/`, `tests/api/test_todo_api_generated.py`, `tests/generated/requirements.json` | Gitignored; safe to delete and regenerate |
+
+Skipping a stage:
+
+```bash
+/run-pipeline                                # all 5 stages
+python -m agents.orchestrator --skip-playwright          # skip Stage 4 (no frontend needed)
+python -m agents.orchestrator --jql "project = TODO"     # custom JIRA filter
+```
+
+The skill is the supported entrypoint for humans; the raw `python -m agents.orchestrator` form is what CI uses (see `.github/workflows/testing-lifecycle.yml`).
 
 ### The five agents
 
@@ -88,11 +117,14 @@ JIRA mock — Flask app (`integrations/jira/`) serving five pre-loaded TODO-* ti
 pip install -r requirements.txt
 python -m playwright install chromium
 
-# 2. Start services
+# 2. Configure local env (gitignored)
+cp apps.env.example apps.env
+#   then edit apps.env and set ANTHROPIC_API_KEY
+
+# 3. Start services
 docker compose up -d
 
-# 3. Run the agent pipeline
-export ANTHROPIC_API_KEY="sk-ant-..."
+# 4. Run the agent pipeline
 PYTHONPATH=. python -m agents.orchestrator --skip-playwright
 
 # 4. Run the tests
@@ -275,6 +307,8 @@ testing-lifecycle-with-agents-demo/
 | `ENV_APP_CONFIG_FILE` | (optional) | path to harqis-core config YAML |
 | `ANTHROPIC_ADMIN_KEY` | (optional, MCP only) | enables usage/cost tools |
 | `MCP_ENABLED_APPS`    | (optional) | comma-separated filter for MCP registrations |
+
+Local values live in **`apps.env`** at the repo root (gitignored; template at `apps.env.example`). Every `/run-*` skill sources it before running, so any keys you set there override the defaults above.
 
 ### Design decisions
 

@@ -16,3 +16,7 @@ tests/api/test_todo_api_generated.py
 
 # Per-machine Claude Code permissions / preferences
 .claude/settings.local.json
+
+# Local environment file (secrets, per-developer overrides).
+# Template lives at apps.env.example.
+apps.env
