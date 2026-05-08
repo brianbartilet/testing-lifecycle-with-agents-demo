@@ -1,8 +1,14 @@
 # Testing Lifecycle with AI Agents
 
+[![Testing Lifecycle CI](https://github.com/brianbartilet/testing-lifecycle-with-agents-demo/actions/workflows/testing-lifecycle.yml/badge.svg)](https://github.com/brianbartilet/testing-lifecycle-with-agents-demo/actions/workflows/testing-lifecycle.yml)
+
 End-to-end demo of AI-driven test automation. Five Claude agents drive every stage of the QA lifecycle — from JIRA tickets to Gherkin specs, Playwright bindings, and pytest API tests — with Allure reports published to GitHub Pages.
 
-Built on top of [`harqis-core`](https://github.com/brianbartilet/harqis-core).
+- **Batteries included.** Mock JIRA, FastAPI app under test, nginx UI, the five agents, system prompts, baseline + generated test suites, Allure reporting — all wired up out of the box. `docker compose up`, fill in `apps.env`, run `/run-pipeline`. That's the whole local loop.
+- **Scales to real systems.** The mock JIRA implements the real JIRA REST API v3 contract, so pointing `JIRA_BASE_URL` at a live instance keeps `RequirementsAgent` working unchanged. Swap in your OpenAPI spec or `data-testid`-tagged HTML and the rest of the pipeline adapts. Add stages by extending `BaseAgent`.
+- **CI/CD ready.** A full GitHub Actions workflow ships in the box — pre-flight import smoke → docker services → API / BDD / E2E in parallel → Allure published to GitHub Pages — on every push. Browse [recent CI/CD runs](https://github.com/brianbartilet/testing-lifecycle-with-agents-demo/actions). Set `ANTHROPIC_API_KEY` as a repo secret and you're done.
+
+Built on [`harqis-core`](https://github.com/brianbartilet/harqis-core).
 
 ---
 
