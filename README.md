@@ -78,7 +78,7 @@ The pipeline is driven by the **`/run-pipeline`** Claude Code skill — call it 
 Skipping a stage:
 
 ```bash
-/run-pipeline                                # all 5 stages
+/run-pipeline                                            # all 5 stages
 python -m agents.orchestrator --skip-playwright          # skip Stage 4 (no frontend needed)
 python -m agents.orchestrator --jql "project = TODO"     # custom JIRA filter
 ```
