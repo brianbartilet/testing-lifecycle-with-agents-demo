@@ -8,8 +8,6 @@ End-to-end demo of AI-driven test automation. Five Claude agents drive every sta
 - **Scales to real systems.** The mock JIRA implements the real JIRA REST API v3 contract, so pointing `JIRA_BASE_URL` at a live instance keeps `RequirementsAgent` working unchanged. Swap in your OpenAPI spec or `data-testid`-tagged HTML and the rest of the pipeline adapts. Add stages by extending `BaseAgent`.
 - **CI/CD ready.** A full GitHub Actions workflow ships in the box — pre-flight import smoke → docker services → API / BDD / E2E in parallel → Allure published to GitHub Pages — on every push. Browse [recent CI/CD runs](https://github.com/brianbartilet/testing-lifecycle-with-agents-demo/actions). Set `ANTHROPIC_API_KEY` as a repo secret and you're done.
 
-Built on [`harqis-core`](https://github.com/brianbartilet/harqis-core).
-
 ---
 
 ## 1. Testing Lifecycle
