@@ -13,3 +13,6 @@ allure-report/
 test-results/
 tests/generated/*.json
 tests/api/test_todo_api_generated.py
+
+# Per-machine Claude Code permissions / preferences
+.claude/settings.local.json
