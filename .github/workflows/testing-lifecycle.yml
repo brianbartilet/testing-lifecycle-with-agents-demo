@@ -325,7 +325,12 @@ jobs:
       # This script lets users view the downloaded artifact without installing
       # anything beyond Python (which ships with http.server).
       - name: Add local server helper to artifact
+        # The previous step (simple-elf/allure-report-action) is a Docker
+        # action that runs as root, so allure-report/ ends up owned by root
+        # and the runner user (uid 1001) cannot write into it. Reclaim
+        # ownership before writing the helper.
         run: |
+          sudo chown -R "$USER" allure-report
           cat > allure-report/serve_report.py << 'EOF'
           #!/usr/bin/env python3
           """
