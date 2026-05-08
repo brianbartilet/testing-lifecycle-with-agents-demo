@@ -2,7 +2,7 @@
 name: agent-context
 description: Load current agent pipeline state — generated requirements, features, step definitions, and API test files — for development assistance
 user-invocable: false
-paths: apps/agents/**/*.py,apps/prompts/**/*.md
+paths: agents/**/*.py,integrations/prompts/**/*.md
 ---
 
 ## Current pipeline output state

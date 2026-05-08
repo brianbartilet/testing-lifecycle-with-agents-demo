@@ -7,7 +7,7 @@ allowed-tools: Bash, Read
 
 Run the requirements agent (Stage 1):
 
-!`PYTHONPATH=. python -c "from apps.agents.requirements_agent import RequirementsAgent; agent = RequirementsAgent(); reqs = agent.run(output_path='tests/generated/requirements.json'); print(f'Extracted {len(reqs)} requirements')" 2>&1`
+!`PYTHONPATH=. python -c "from agents.requirements_agent import RequirementsAgent; agent = RequirementsAgent(); reqs = agent.run(output_path='tests/generated/requirements.json'); print(f'Extracted {len(reqs)} requirements')" 2>&1`
 
 Then read `tests/generated/requirements.json` and display a summary table with columns:
 

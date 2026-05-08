@@ -5,11 +5,10 @@
 #   todo-backend    FastAPI Todo API         → http://localhost:8000
 #   todo-frontend   Nginx HTML frontend      → http://localhost:3000
 #   jira-mock       Mock JIRA REST API       → http://localhost:8080
-#   n8n             Workflow orchestration   → http://localhost:5678
 #
 # Usage:
-#   docker-compose up -d              # start all services
-#   docker-compose up todo-backend    # start only the backend
+#   docker compose up -d              # start all services
+#   docker compose up todo-backend    # start only the backend
 ###############################################################################
 
 services:
@@ -49,7 +48,7 @@ services:
 
   jira-mock:
     build:
-      context: ./apps/jira
+      context: ./integrations/jira
       dockerfile: Dockerfile
     container_name: jira-mock
     ports:
@@ -61,23 +60,3 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
-
-  # ── n8n Workflow Orchestration ─────────────────────────────────────────────
-
-  n8n:
-    image: docker.n8n.io/n8nio/n8n:latest
-    container_name: n8n
-    ports:
-      - "${HOST_PORT_N8N:-5678}:5678"
-    volumes:
-      - n8n_data:/home/node/.n8n
-    environment:
-      TZ: Asia/Singapore
-      N8N_TIMEZONE: Asia/Singapore
-      WEBHOOK_URL: ${N8N_WEBHOOK_URL:-http://localhost:5678/}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    restart: unless-stopped
-
-volumes:
-  n8n_data:
